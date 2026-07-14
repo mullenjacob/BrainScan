@@ -1,0 +1,17 @@
+# Core ML stack
+# NOTE: On the Jetson Orin Nano, do NOT pip-install torch/torchvision from this file.
+# Install them separately using scripts/setup_jetson.sh (see README.md).
+# This file covers everything else, and is also what you install on a laptop/PC
+# (which CAN install torch/torchvision normally) if you'd rather train off-device.
+
+numpy<2.0
+pillow
+opencv-python-headless
+matplotlib
+scikit-learn
+tqdm
+pyyaml
+flask
+onnx
+onnxruntime
+kaggle

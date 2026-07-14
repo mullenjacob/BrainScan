@@ -1,0 +1,37 @@
+# ============================================================
+# Brain Tumor MRI Classifier — configuration
+# Edit these values to tune training without touching code.
+# ============================================================
+
+data:
+  train_dir: "data/Training"   # ImageFolder-style: data/Training/<class_name>/*.jpg
+  test_dir: "data/Testing"     # ImageFolder-style: data/Testing/<class_name>/*.jpg
+  img_size: 320   # bumped from 224 -- see README 'Pituitary detection and image resolution'.
+                  # Testing whether small structures (like a pituitary microadenoma,
+                  # which is tiny relative to the whole head) survive downsampling
+                  # better at higher resolution. This is a hypothesis being tested,
+                  # not a confirmed fix -- compare pituitary accuracy before/after.
+  val_split: 0.15              # fraction of Training carved out for validation
+  num_workers: 4
+
+model:
+  backbone: "mobilenet_v3_small"   # options: mobilenet_v3_small, mobilenet_v3_large, resnet18, efficientnet_b0
+                                    # efficientnet_b0 tends to be the most accurate of these on this dataset,
+                                    # at a modest cost in inference speed/size vs mobilenet_v3_small.
+  pretrained: true
+
+train:
+  epochs: 20
+  batch_size: 32
+  lr: 0.0003
+  weight_decay: 0.0001
+  label_smoothing: 0.05   # helps prevent overconfident predictions; 0.0 disables it
+  early_stop_patience: 5
+  seed: 42
+
+paths:
+  checkpoint_dir: "models"
+  best_checkpoint: "models/best_model.pth"
+  onnx_path: "models/brain_tumor_model.onnx"
+  history_plot: "models/training_history.png"
+  confusion_matrix_plot: "models/confusion_matrix.png"

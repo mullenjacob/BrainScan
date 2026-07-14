@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BrainScan // Brain Tumor Classifier</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="scanlines"></div>
+
+  <header>
+    <h1>BRAIN<span>SCAN</span></h1>
+    <p class="subtitle">MRI Tumor Classification — Jetson Orin Nano Edge Inference</p>
+  </header>
+
+  <main>
+    <div class="dropzone" id="dropzone">
+      <p id="dropzone-text">Drag &amp; drop an MRI scan here (from any angle — from above, the side, or the front), or click to browse</p>
+      <input type="file" id="file-input" accept="image/*" hidden>
+    </div>
+
+    <div class="preview-row">
+      <img id="preview-img" class="hidden">
+      <div id="result-panel" class="hidden">
+        <h2 id="result-label">—</h2>
+        <p id="low-confidence-banner" class="low-confidence-banner hidden">
+          ⚠ Low confidence — the model is genuinely unsure here. Treat this as
+          inconclusive, not a clear read.
+        </p>
+        <p id="box-hint" class="hint hidden">
+          Boxed region(s) show where the model focused (Grad-CAM) — this is
+          an explanation aid, not a precise tumor boundary.
+        </p>
+        <div id="prob-bars"></div>
+      </div>
+      <div id="not-mri-panel" class="hidden">
+        <h2 class="warn-label">Not an MRI scan</h2>
+        <p id="not-mri-message" class="hint"></p>
+        <p class="hint">
+          Here's one example of a valid upload (scans from any angle work —
+          this is just one of several valid styles, not the only one):
+        </p>
+        <img id="reference-img" src="/reference_image" class="reference-img">
+      </div>
+    </div>
+
+    <footer class="disclaimer">
+      Research/educational tool only — not a certified medical device, not a
+      substitute for diagnosis by a qualified radiologist.
+    </footer>
+  </main>
+
+<script>
+const dropzone = document.getElementById("dropzone");
+const fileInput = document.getElementById("file-input");
+const previewImg = document.getElementById("preview-img");
+const resultPanel = document.getElementById("result-panel");
+const resultLabel = document.getElementById("result-label");
+const probBars = document.getElementById("prob-bars");
+const boxHint = document.getElementById("box-hint");
+const notMriPanel = document.getElementById("not-mri-panel");
+const notMriMessage = document.getElementById("not-mri-message");
+const lowConfidenceBanner = document.getElementById("low-confidence-banner");
+
+dropzone.addEventListener("click", () => fileInput.click());
+dropzone.addEventListener("dragover", e => { e.preventDefault(); dropzone.classList.add("drag"); });
+dropzone.addEventListener("dragleave", () => dropzone.classList.remove("drag"));
+dropzone.addEventListener("drop", e => {
+  e.preventDefault();
+  dropzone.classList.remove("drag");
+  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener("change", () => {
+  if (fileInput.files.length) handleFile(fileInput.files[0]);
+});
+
+function handleFile(file) {
+  previewImg.src = URL.createObjectURL(file);
+  previewImg.classList.remove("hidden");
+  boxHint.classList.add("hidden");
+  resultPanel.classList.add("hidden");
+  notMriPanel.classList.add("hidden");
+
+  const formData = new FormData();
+  formData.append("image", file);
+
+  fetch("/predict", { method: "POST", body: formData })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) { alert(data.error); return; }
+
+      if (data.not_mri) {
+        previewImg.classList.add("hidden");
+        notMriPanel.classList.remove("hidden");
+        notMriMessage.textContent = data.message;
+        // Cache-bust so a new random reference image loads each time,
+        // rather than the browser reusing whatever loaded on page load.
+        document.getElementById("reference-img").src = "/reference_image?" + Date.now();
+        return;
+      }
+
+      resultPanel.classList.remove("hidden");
+      resultLabel.textContent = `${data.label} (${(data.confidence * 100).toFixed(1)}%)`;
+      resultLabel.classList.remove("label-low-confidence");
+
+      if (data.confidence_level === "low") {
+        lowConfidenceBanner.classList.remove("hidden");
+        resultLabel.classList.add("label-low-confidence");
+      } else {
+        lowConfidenceBanner.classList.add("hidden");
+      }
+
+      if (data.annotated_image) {
+        previewImg.src = "data:image/jpeg;base64," + data.annotated_image;
+        boxHint.classList.remove("hidden");
+      }
+
+      probBars.innerHTML = "";
+      Object.entries(data.all_probs)
+        .sort((a, b) => b[1] - a[1])
+        .forEach(([cls, prob]) => {
+          const row = document.createElement("div");
+          row.className = "prob-row";
+          row.innerHTML = `
+            <span class="prob-label">${cls}</span>
+            <div class="prob-bar-bg"><div class="prob-bar-fill" style="width:${prob*100}%"></div></div>
+            <span class="prob-pct">${(prob*100).toFixed(1)}%</span>
+          `;
+          probBars.appendChild(row);
+        });
+    })
+    .catch(err => alert("Prediction failed: " + err));
+}
+</script>
+</body>
+</html>
