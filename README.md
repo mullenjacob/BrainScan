@@ -29,6 +29,10 @@ on an NVIDIA Jetson Orin Nano.
 - [Confidence-aware results](#confidence-aware-results)
 - [Robustness](#robustness)
 - [Pituitary detection and image resolution](#pituitary-detection-and-image-resolution-confirmed-improvement)
+  
+## See it in action
+
+![BrainScan predicting meningioma with a Grad-CAM overlay](docs/screenshot_prediction.png)
 
 ## Project status (read this first)
 
