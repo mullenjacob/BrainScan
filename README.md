@@ -99,6 +99,18 @@ If you'd rather train on a beefier machine (laptop/desktop GPU or Colab) and
 just deploy the resulting checkpoint to the Jetson, that works fine too — just
 copy `models/best_model.pth` over afterward and skip straight to running the app.
 
+**This project isn't Jetson-locked.** Every part of it -- training, inference,
+the web app -- is standard PyTorch/Flask with no Jetson-specific code paths;
+it runs the same way on a laptop or desktop, with or without a GPU. The
+Jetson Orin Nano is the intended edge-deployment target (and the reason
+lightweight backbones like MobileNetV3 were chosen -- see "Notes on model
+choice" below), and `scripts/setup_jetson.sh` exists specifically to install
+a CUDA-enabled PyTorch build matched to the Jetson's unusual ARM64
+architecture. On a laptop or desktop, skip that script entirely and just
+`pip install torch torchvision` normally (add a CUDA index URL if you have
+an NVIDIA GPU, or leave it as the default CPU build otherwise), then follow
+the rest of this README as written.
+
 ---
 
 ## 1. Getting the dataset
