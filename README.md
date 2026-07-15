@@ -24,6 +24,10 @@ BrainScan looks at a brain MRI scan and predicts whether it shows a glioma, a me
 - [Making sure it never crashes](#making-sure-it-never-crashes)
 - [A fix that actually worked: pituitary scans](#a-fix-that-actually-worked-pituitary-scans)
 
+## See it in action
+
+![BrainScan predicting meningioma with a Grad-CAM overlay](docs/screenshot_prediction.png)
+
 ## Where things stand right now
 
 - On scans similar to what it was trained on, it gets the right answer about 96% of the time.
