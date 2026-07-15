@@ -23,6 +23,7 @@ BrainScan looks at a brain MRI scan and predicts whether it shows a glioma, a me
 - [Being honest about uncertainty](#being-honest-about-uncertainty)
 - [Making sure it never crashes](#making-sure-it-never-crashes)
 - [A fix that actually worked: pituitary scans](#a-fix-that-actually-worked-pituitary-scans)
+- [Video explanation and example](#video-explanation-and-example)
 
 ## See it in action
 
@@ -266,3 +267,9 @@ To test that idea directly, the size the images get shrunk to before feeding the
 - None of this cost anything on the regular test set either
 
 This is a case where a specific guess about why something wasn't working got tested directly and confirmed with real before and after numbers, rather than just changing a setting and hoping.
+
+---
+
+## Video explanation and example
+
+
