@@ -32,7 +32,6 @@ BrainScan looks at a brain MRI scan and predicts whether it shows a glioma, a me
 
 - On scans similar to what it was trained on, it gets the right answer about 96% of the time.
 - I also tested it on a completely separate set of scans, from a different source, using a different scan type it had never seen during training. On those, it got the right answer about 90% of the time. That second number matters more than it might seem: it's checking whether the model actually learned something general, not just memorized the style of pictures it trained on.
-- One known gap: the fix that improved that second number only covers two of the four categories (glioma and no tumor). I haven't found a good way yet to test whether it holds up the same way for meningioma and pituitary tumors.
 - When the model isn't confident, the app says so plainly instead of just showing a number that looks trustworthy either way.
 - I threw a lot of broken and unusual files at it on purpose (huge images, corrupted files, images with no color, images with a transparency layer) and it handles all of them without crashing.
 
@@ -70,9 +69,9 @@ brain_tumor_classifier/
 
 The whole thing is meant to be built and run directly on the Jetson, using a Remote SSH connection from your laptop through VS Code.
 
-1. Do everything on the Jetson itself, through that same terminal.
+1. Do everything on the Jetson itself, through that same terminal in VS Code.
 2. Download the scans, train the model, then run the web app. All on the one device.
-3. Training on the full combined set of images (around 10,000, once you add the second dataset described below) takes about 1 to 2 minutes per pass through the data, which is easily within what the Orin Nano can handle.
+3. Training on the full combined set of images (around 15,000, once you add the second dataset described below) takes about 1 to 2 minutes per pass through the data, which is easily within what the Orin Nano can handle.
 
 If you'd rather train somewhere with a stronger graphics card, like your own laptop or a free service like Google Colab, that's fine too. Just copy the finished model file over to the Jetson afterward and skip straight to running the app.
 
